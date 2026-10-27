@@ -6,10 +6,10 @@ This guide gets **CloudCompare AI** running with:
 - **Backend (Spring Boot)** → hosted on **Render** (Docker web service)
 
 The existing `.env`/AWS/Terraform paths are unrelated to this setup. We deploy
-the frontend at the site root (no `/app/` sub-path). In production Vercel
+the React frontend at the site root (no `/app/` sub-path). In production Vercel
 **proxies `/api/*` to the Render backend** via `vercel.json` rewrites, so the
-React app calls its own origin — exactly like the legacy static dashboard — and
-needs no `VITE_API_BASE` env var and no CORS.
+React app calls its own origin and needs no `VITE_API_BASE` env var or browser
+CORS configuration.
 
 ---
 
@@ -62,21 +62,24 @@ folder as the **Root Directory**.
 ### Steps
 
 1. In Vercel: **Add New Project → Import** your repo.
-2. Set **Root Directory** to `cloudcompare-frontend`.
-3. Vercel auto-detects Vite and uses `vercel.json` (proxy + SPA rewrites +
-   headers).
+2. Leave the **Root Directory** at the repository root. The root
+   `vercel.json` installs and builds `cloudcompare-frontend/`, publishing its
+   `dist/` output.
+3. If you instead set the Root Directory to `cloudcompare-frontend`, the
+   frontend's own `vercel.json` provides the equivalent Vite build, proxy, SPA
+   rewrites, and headers.
 4. **No env var is required.** The `vercel.json` rewrites proxy `/api/*` to the
    Render backend server-side, so the browser calls the Vercel origin and Vercel
    forwards it to Render. (Optionally you may set `VITE_API_BASE` to force direct
    cross-origin calls, but you'd then also need CORS.)
-5. Deploy. The SPA routes (`/`, `/login`, `/signup`, `/dashboard`) and the
+5. Deploy. The React SPA routes (`/`, `/login`, `/signup`, `/dashboard`) and the
    `/api/*` proxy are both handled by `vercel.json` rewrites.
 
-> **Why the proxy?** `src/api/client.js` resolves the API base, then prepends
+> **Why the proxy?** `cloudcompare-frontend/src/api/client.js` resolves the API
+> base, then prepends
 > `/api`. When `VITE_API_BASE` is unset it stays same-origin (relative `/api`),
-> which on Vercel is pointed at the Render backend by the rewrite. This mirrors
-> the static dashboard that Render serves (which calls `/api` relative to its
-> own host). Local dev still works because the Vite dev server proxies
+> which on Vercel is pointed at the Render backend by the rewrite. Local dev
+> still works because the Vite dev server proxies
 > `/api` → `localhost:8080`. The `/api/:path*` rewrites must appear **before** the
 > `/(.*)` SPA catch-all so API routes aren't swallowed by `index.html`.
 

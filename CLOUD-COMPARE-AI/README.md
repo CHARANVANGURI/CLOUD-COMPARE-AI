@@ -130,13 +130,18 @@ The API starts on [http://localhost:8080](http://localhost:8080) and also serves
 > GROK_API_KEYS=your-groq-key ./mvnw spring-boot:run
 > ```
 
-**React app (optional):**
+**React app (canonical frontend):**
 
 ```bash
 cd cloudcompare-frontend
 npm install
-npm run dev        # http://localhost:5173 — proxy /api to :8080
+npm run dev        # http://localhost:3000 — proxy /api to :8080
 ```
+
+The React/Vite application in `cloudcompare-frontend/` is the canonical
+frontend for Vercel and local dashboard development. The Spring Boot static
+resources remain available for the backend-served legacy UI and are not the
+Vercel deployment target.
 
 ## API Overview
 
